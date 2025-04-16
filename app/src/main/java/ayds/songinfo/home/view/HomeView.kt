@@ -3,6 +3,7 @@ package ayds.songinfo.home.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -93,6 +94,7 @@ class HomeViewActivity : Activity(), HomeView {
     }
 
     private fun searchAction() {
+        Log.d("MiEtiqueta3", "Este es el texto que quiero mostrar")
         updateSearchTermState()
         updateDisabledActionsState()
         updateMoreDetailsState()
@@ -118,6 +120,7 @@ class HomeViewActivity : Activity(), HomeView {
     }
 
     private fun updateSearchTermState() {
+        Log.d("MiEtiqueta4", termEditText.text.toString())
         uiState = uiState.copy(searchTerm = termEditText.text.toString())
     }
 

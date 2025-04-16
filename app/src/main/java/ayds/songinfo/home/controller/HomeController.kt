@@ -1,10 +1,13 @@
 package ayds.songinfo.home.controller
 
+import android.util.Log
+
 import ayds.observer.Observer
 import ayds.songinfo.home.model.HomeModel
 import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.view.HomeUiEvent
 import ayds.songinfo.home.view.HomeView
+import kotlin.math.log
 
 interface HomeController {
 
@@ -34,6 +37,7 @@ internal class HomeControllerImpl(
 
     private fun searchSong() {
         // Warning: Never use Thread in android! Use coroutines
+        Log.d("MiEtiqueta", "Este es el texto que quiero mostrar")
         Thread {
             homeModel.searchSong(homeView.uiState.searchTerm)
         }.start()

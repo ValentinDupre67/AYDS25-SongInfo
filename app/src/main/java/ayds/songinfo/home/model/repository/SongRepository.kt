@@ -1,5 +1,6 @@
 package ayds.songinfo.home.model.repository
 
+import android.util.Log
 import ayds.songinfo.home.model.entities.Song.EmptySong
 import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.model.entities.Song.SpotifySong
@@ -24,7 +25,7 @@ internal class SongRepositoryImpl(
             else -> {
                 try {
                     spotifySong = spotifyTrackService.getSong(term)
-
+                    Log.d("MiEtiquetaSong", spotifySong.toString());
                     (spotifySong as? SpotifySong)?.let {
                         when {
                             it.isSavedSong() -> spotifyLocalStorage.updateSongTerm(term, it.id)
