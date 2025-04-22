@@ -3,6 +3,7 @@ package ayds.songinfo.home.model.repository.external.spotify.tracks
 import com.google.gson.Gson
 import ayds.songinfo.home.model.entities.Song.SpotifySong
 import com.google.gson.JsonObject
+import kotlin.math.log
 
 interface SpotifyToSongResolver {
     fun getSongFromExternalData(serviceData: String?): SpotifySong?
