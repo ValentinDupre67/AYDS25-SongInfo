@@ -34,8 +34,6 @@ public class OtherInfoWindow extends Activity {
   public final static String ARTIST_NAME_EXTRA = "artistName";
 
   private TextView textPane1;
-  //private JPanel imagePanel;
- // private JLabel posterImageLabel;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +42,6 @@ public class OtherInfoWindow extends Activity {
     setContentView(R.layout.activity_other_info);
 
     textPane1 = findViewById(R.id.textPane1);
-
 
     open(getIntent().getStringExtra("artistName"));
   }
@@ -58,18 +55,13 @@ public class OtherInfoWindow extends Activity {
             .build();
 
     LastFMAPI lastFMAPI = retrofit.create(LastFMAPI.class);
-
-    Log.e("TAG","artistName " + artistName);
-
         new Thread(new Runnable() {
           @Override
           public void run() {
 
             ArticleEntity article = dataBase.ArticleDao().getArticleByArtistName(artistName);
 
-
             String text = "";
-
 
             if (article != null) { // exists in db
 
@@ -107,7 +99,6 @@ public class OtherInfoWindow extends Activity {
 
                   text = textToHtml(text, artistName);
 
-
                   // save to DB  <o/
                   final String text2 = text;
                   new Thread(new Runnable() {
@@ -116,11 +107,7 @@ public class OtherInfoWindow extends Activity {
                       dataBase.ArticleDao().insertArticle(new ArticleEntity(artistName, text2, url.getAsString()));
                     }
                   }).start();
-
-
-
                 }
-
 
                 final String urlString = url.getAsString();
                 findViewById(R.id.openUrlButton1).setOnClickListener(new View.OnClickListener() {
@@ -137,14 +124,7 @@ public class OtherInfoWindow extends Activity {
                 e1.printStackTrace();
               }
             }
-
-
             String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png";
-
-            Log.e("TAG","Get Image from " + imageUrl);
-
-
-
             final String finalText = text;
 
             runOnUiThread( () -> {
