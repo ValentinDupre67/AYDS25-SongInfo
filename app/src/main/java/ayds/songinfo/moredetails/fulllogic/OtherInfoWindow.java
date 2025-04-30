@@ -146,17 +146,11 @@ public class OtherInfoWindow extends Activity {
   private ArticleDatabase dataBase = null;
 
   private void open(String artist) {
-
-
     dataBase =    Room.databaseBuilder(this, ArticleDatabase.class, "database-name-thename").build();
-
     new Thread(new Runnable() {
       @Override
       public void run() {
         dataBase.ArticleDao().insertArticle(new ArticleEntity( "test", "sarasa", "")  );
-        Log.e("TAG", ""+ dataBase.ArticleDao().getArticleByArtistName("test"));
-        Log.e("TAG", ""+ dataBase.ArticleDao().getArticleByArtistName("nada"));
-
       }
     }).start();
 
