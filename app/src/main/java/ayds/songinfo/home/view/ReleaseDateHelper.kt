@@ -9,9 +9,9 @@ interface ReleaseDateHelper {
 }
 
 internal class ReleaseDateImpl : ReleaseDateHelper{
+
     override fun getReleaseDate(song: Song): String {
         val precision = getPrecision(song)
-        Log.d("pepe","hola")
         return getFormatedDate(precision, song as SpotifySong)
     }
 
@@ -20,19 +20,17 @@ internal class ReleaseDateImpl : ReleaseDateHelper{
         return precision.releaseDatePrecision
     }
 
-    private fun getFormatedDate(presition: String, song: SpotifySong): String {
-        return when (presition) {
+    private fun getFormatedDate(precision: String, song: SpotifySong): String {
+        return when (precision) {
             "day" -> return song.releaseDate
             "month" -> getMonthFormat(song.releaseDate)
             "year" -> return song.releaseDate + "(not a leap year)"
-            else -> return "-"
+            else -> return ""
         }
     }
 
     private fun getMonthFormat(date: String): String {
             val parts = date.split("-")
-            if (parts.size != 2) return "Invalid date"
-
             val year = parts[0].toIntOrNull()
             val month = parts[1].toIntOrNull()
 
