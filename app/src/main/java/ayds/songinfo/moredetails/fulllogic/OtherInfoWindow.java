@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
 import ayds.songinfo.R;
@@ -27,12 +27,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-
-
 public class OtherInfoWindow extends Activity {
 
   public final static String ARTIST_NAME_EXTRA = "artistName";
+  public final static String IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png";
 
+  //preguntar que es mejor crearlas y pasarlas por parametro o crear la variable y luego setearla en el onCreate
+  private ArticleDatabase dataBase;
+
+  //preguntar que es mejor crearlas y pasarlas por parametro o crear la variable y luego setearla en el onCreate
   private TextView textPane1;
 
   @Override
@@ -40,30 +43,39 @@ public class OtherInfoWindow extends Activity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_other_info);
-
-    textPane1 = findViewById(R.id.textPane1);
-
+    setTextPanel();
+    setDataBase();
     open(getIntent().getStringExtra("artistName"));
+  }
+  private void setTextPanel() {
+    textPane1 = findViewById(R.id.textPane1);
+  }
+
+  private void setDataBase() {
+    dataBase =    Room.databaseBuilder(this, ArticleDatabase.class, "database-name-thename").build();
+  }
+
+  private void open(String artist) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        dataBase.ArticleDao().insertArticle(new ArticleEntity( "test", "sarasa", "")  );
+      }
+    }).start();
+
+
+    getARtistInfo(artist);
   }
 
   public void getARtistInfo(String artistName) {
-
-    // create
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://ws.audioscrobbler.com/2.0/")
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build();
-
-    LastFMAPI lastFMAPI = retrofit.create(LastFMAPI.class);
-        new Thread(new Runnable() {
+    LastFMAPI lastFMAPI = getLastFMAPI();
+    new Thread(new Runnable() {
           @Override
           public void run() {
-
-            ArticleEntity article = dataBase.ArticleDao().getArticleByArtistName(artistName);
-
+            ArticleEntity article = getArticleEntity(artistName);
             String text = "";
 
-            if (article != null) { // exists in db
+            if (article != null) {
 
               text = "[*]" + article.getBiography();
 
@@ -81,8 +93,6 @@ public class OtherInfoWindow extends Activity {
               Response<String> callResponse;
               try {
                 callResponse = lastFMAPI.getArtistInfo(artistName).execute();
-
-                Log.e("TAG","JSON " + callResponse.body());
 
                 Gson gson = new Gson();
                 JsonObject jobj = gson.fromJson(callResponse.body(), JsonObject.class);
@@ -120,20 +130,14 @@ public class OtherInfoWindow extends Activity {
                 });
 
               } catch (IOException e1) {
-                Log.e("TAG", "Error " + e1);
                 e1.printStackTrace();
               }
             }
-            String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png";
             final String finalText = text;
 
             runOnUiThread( () -> {
-              Picasso.get().load(imageUrl).into((ImageView) findViewById(R.id.imageView1));
-
-
+              Picasso.get().load(IMAGE_URL).into((ImageView) findViewById(R.id.imageView1));
               textPane1.setText(Html.fromHtml( finalText));
-
-
             });
 
 
@@ -143,33 +147,40 @@ public class OtherInfoWindow extends Activity {
 
   }
 
-  private ArticleDatabase dataBase = null;
+  @Nullable
+  private ArticleEntity getArticleEntity(String artistName) {
+    ArticleEntity article = dataBase.ArticleDao().getArticleByArtistName(artistName);
+    return article;
+  }
 
-  private void open(String artist) {
+  @NonNull
+  private static LastFMAPI getLastFMAPI() {
+    Retrofit retrofit = buildRetroFit();
+    return retrofit.create(LastFMAPI.class);
+  }
 
-
-    dataBase =    Room.databaseBuilder(this, ArticleDatabase.class, "database-name-thename").build();
-
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        dataBase.ArticleDao().insertArticle(new ArticleEntity( "test", "sarasa", "")  );
-        Log.e("TAG", ""+ dataBase.ArticleDao().getArticleByArtistName("test"));
-        Log.e("TAG", ""+ dataBase.ArticleDao().getArticleByArtistName("nada"));
-
-      }
-    }).start();
-
-
-    getARtistInfo(artist);
+  @NonNull
+  private static Retrofit buildRetroFit() {
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("https://ws.audioscrobbler.com/2.0/")
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .build();
+    return retrofit;
   }
 
   public static String textToHtml(String text, String term) {
 
     StringBuilder builder = new StringBuilder();
 
+    setBuilder(text, term, builder);
+
+    return builder.toString();
+  }
+
+  private static void setBuilder(String text, String term, StringBuilder builder) {
     builder.append("<html><div width=400>");
     builder.append("<font face=\"arial\">");
+
 
     String textWithBold = text
             .replace("'", " ")
@@ -179,8 +190,7 @@ public class OtherInfoWindow extends Activity {
     builder.append(textWithBold);
 
     builder.append("</font></div></html>");
-
-    return builder.toString();
   }
+
 
 }
