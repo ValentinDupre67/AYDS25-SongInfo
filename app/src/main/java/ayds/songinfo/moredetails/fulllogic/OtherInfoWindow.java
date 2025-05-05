@@ -70,14 +70,12 @@ public class OtherInfoWindow extends Activity {
           public void run() {
             ArticleEntity article = getArticleEntity(artistName);
             String text = "";
-
             if (article != null) {
               text = getBiography(article);
-            } else { // get from service
+            } else {
               text = getFromService(artistName);
             }
             final String finalText = text;
-
             runOnUiThread( () -> {
               Picasso.get().load(IMAGE_URL).into((ImageView) findViewById(R.id.imageView1));
               textPane1.setText(Html.fromHtml(finalText));
@@ -94,7 +92,6 @@ public class OtherInfoWindow extends Activity {
 
     try {
       Response<String> callResponse = lastFMAPI.getArtistInfo(artistName).execute();
-
       Gson gson = new Gson();
       JsonObject jobj = gson.fromJson(callResponse.body(), JsonObject.class);
       JsonObject artist = jobj.get("artist").getAsJsonObject();
