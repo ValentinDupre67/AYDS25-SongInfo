@@ -41,7 +41,6 @@ public class OtherInfoWindow extends Activity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_other_info);
     setTextPanel();
     setDataBase();
@@ -52,7 +51,7 @@ public class OtherInfoWindow extends Activity {
   }
 
   private void setDataBase() {
-    dataBase =    Room.databaseBuilder(this, ArticleDatabase.class, "database-name-thename").build();
+    dataBase = Room.databaseBuilder(this, ArticleDatabase.class, "database-name-thename").build();
   }
 
   private void open(String artist) {
@@ -62,13 +61,10 @@ public class OtherInfoWindow extends Activity {
         dataBase.ArticleDao().insertArticle(new ArticleEntity( "test", "sarasa", "")  );
       }
     }).start();
-
-
     getARtistInfo(artist);
   }
 
   public void getARtistInfo(String artistName) {
-    LastFMAPI lastFMAPI = getLastFMAPI();
     new Thread(new Runnable() {
           @Override
           public void run() {
@@ -76,75 +72,85 @@ public class OtherInfoWindow extends Activity {
             String text = "";
 
             if (article != null) {
-
-              text = "[*]" + article.getBiography();
-
-              final String urlString = article.getArticleUrl();
-              findViewById(R.id.openUrlButton1).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                  Intent intent = new Intent(Intent.ACTION_VIEW);
-                  intent.setData(Uri.parse(urlString));
-                  startActivity(intent);
-                }
-              });
-
+              text = getBiography(article);
             } else { // get from service
-              Response<String> callResponse;
-              try {
-                callResponse = lastFMAPI.getArtistInfo(artistName).execute();
-
-                Gson gson = new Gson();
-                JsonObject jobj = gson.fromJson(callResponse.body(), JsonObject.class);
-                JsonObject artist = jobj.get("artist").getAsJsonObject();
-                JsonObject bio = artist.get("bio").getAsJsonObject();
-                JsonElement extract = bio.get("content");
-                JsonElement url = artist.get("url");
-
-
-                if (extract == null) {
-                  text = "No Results";
-                } else {
-                  text = extract.getAsString().replace("\\n", "\n");
-
-                  text = textToHtml(text, artistName);
-
-                  // save to DB  <o/
-                  final String text2 = text;
-                  new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                      dataBase.ArticleDao().insertArticle(new ArticleEntity(artistName, text2, url.getAsString()));
-                    }
-                  }).start();
-                }
-
-                final String urlString = url.getAsString();
-                findViewById(R.id.openUrlButton1).setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(urlString));
-                    startActivity(intent);
-                  }
-                });
-
-              } catch (IOException e1) {
-                e1.printStackTrace();
-              }
+              text = getFromService(artistName);
             }
             final String finalText = text;
 
             runOnUiThread( () -> {
               Picasso.get().load(IMAGE_URL).into((ImageView) findViewById(R.id.imageView1));
-              textPane1.setText(Html.fromHtml( finalText));
+              textPane1.setText(Html.fromHtml(finalText));
             });
-
-
-
           }
         }).start();
 
+  }
+
+  @NonNull
+  private String getFromService(String artistName) {
+    LastFMAPI lastFMAPI = getLastFMAPI(); //se lo paso por parametro o lo creo aca
+    String text = ""; //se lo paso por parametro o lo creo aca
+
+    try {
+      Response<String> callResponse = lastFMAPI.getArtistInfo(artistName).execute();
+
+      Gson gson = new Gson();
+      JsonObject jobj = gson.fromJson(callResponse.body(), JsonObject.class);
+      JsonObject artist = jobj.get("artist").getAsJsonObject();
+      JsonObject bio = artist.get("bio").getAsJsonObject();
+      JsonElement extract = bio.get("content");
+      JsonElement url = artist.get("url");
+
+
+      if (extract == null) {
+        text = "No Results";
+      } else {
+        text = extract.getAsString().replace("\\n", "\n");
+
+        text = textToHtml(text, artistName);
+
+        // save to DB  <o/
+        final String text2 = text;
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            dataBase.ArticleDao().insertArticle(new ArticleEntity(artistName, text2, url.getAsString()));
+          }
+        }).start();
+      }
+
+      final String urlString = url.getAsString();
+      findViewById(R.id.openUrlButton1).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Intent intent = new Intent(Intent.ACTION_VIEW);
+          intent.setData(Uri.parse(urlString));
+          startActivity(intent);
+        }
+      });
+
+    } catch (IOException e1) {
+      e1.printStackTrace();
+    }
+    return text;
+  }
+
+  @NonNull
+  private String getBiography(ArticleEntity article) {
+    String text;
+    text = "[*]" + article.getBiography();
+
+    final String urlString = article.getArticleUrl();
+    findViewById(R.id.openUrlButton1).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(urlString));
+        startActivity(intent);
+      }
+    });
+    return text;
   }
 
   @Nullable
