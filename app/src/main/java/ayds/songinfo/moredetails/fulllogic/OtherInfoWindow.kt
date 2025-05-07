@@ -20,11 +20,15 @@ import java.io.IOException
 import java.util.Locale
 
 
-val imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
+private const val IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
+
 class OtherInfoWindow : Activity() {
+    //por que van aca y no fuera de la clase OtherInfoWindows
     private lateinit var textPaneView: TextView
     private lateinit var dataBase: ArticleDatabase
     private lateinit var lastFMAPI: LastFMAPI
+    //tendria que tener el dataBases aca?
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,83 +52,91 @@ class OtherInfoWindow : Activity() {
         return lastFMAPI
     }
 
-    private fun getArtistInfo(artistName: String?) {
-        Thread {
-            getInfoOfArtist(artistName)
-        }.start()
-    }
-
-    private fun getInfoOfArtist(artistName: String?) {
-        val article = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
-        var text = ""
-
-
-        if (article != null) {
-
-            text = "[*]" + article.biography
-
-            val urlString = article.articleUrl
-            findViewById<View>(R.id.openUrlButton1).setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setData(Uri.parse(urlString))
-                startActivity(intent)
-            }
-        } else { // get from service
-            val callResponse: Response<String>
-            try {
-                callResponse = lastFMAPI.getArtistInfo(artistName).execute()
-                val gson = Gson()
-                val jobj = gson.fromJson(callResponse.body(), JsonObject::class.java)
-                val artist = jobj["artist"].asJsonObject
-                val bio = artist["bio"].asJsonObject
-                val extract = bio["content"]
-                val url = artist["url"]
-
-
-                if (extract == null) {
-                    text = "No Results"
-                } else {
-                    text = extract.asString.replace("\\n", "\n")
-
-                    text = textToHtml(text, artistName)
-
-
-                    // save to DB  <o/
-                    val text2 = text
-                    Thread {
-                        dataBase!!.ArticleDao().insertArticle(
-                            ArticleEntity(
-                                artistName, text2, url.asString
-                            )
-                        )
-                    }
-                        .start()
-                }
-
-
-                val urlString = url.asString
-                findViewById<View>(R.id.openUrlButton1).setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setData(Uri.parse(urlString))
-                    startActivity(intent)
-                }
-            } catch (e1: IOException) {
-                e1.printStackTrace()
-            }
-        }
-        val finalText = text
-        runOnUiThread {
-            Picasso.get().load(imageUrl).into(findViewById<View>(R.id.imageView1) as ImageView)
-            textPaneView!!.text = Html.fromHtml(finalText)
-        }
-    }
-
     private fun open(artist: String?) {
         Thread {
             setDataBase()
         }.start()
         getArtistInfo(artist)
     }
+
+    private fun getArtistInfo(artistName: String?) {
+        Thread {
+            getInfoOfArticleArtist(artistName)
+        }.start()
+    }
+
+    private fun getInfoOfArticleArtist(artistName: String?) {
+        val articleArtistInfo = getArticle(artistName)
+        var textArtistInfo = ""
+
+        if (articleArtistInfo != null) {
+            textArtistInfo = getArtistBiography(textArtistInfo, articleArtistInfo)
+        } else {
+            textArtistInfo = getInfoArtisOfLastFMAPI(artistName!!, textArtistInfo)
+        }
+        runOnUiThread {
+            Picasso.get().load(IMAGE_URL).into(findViewById<View>(R.id.imageView1) as ImageView)
+            textPaneView!!.text = Html.fromHtml(textArtistInfo)
+        }
+    }
+
+    private fun getArtistBiography(textArtistInfo: String,article: ArticleEntity): String {
+        var text = textArtistInfo
+
+        text = "[*]" + article.biography
+        val urlString = article.articleUrl
+        findViewById<View>(R.id.openUrlButton1).setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(urlString))
+            startActivity(intent)
+        }
+        return text
+    }
+
+    private fun getInfoArtisOfLastFMAPI(artistName: String, textArtistInfo: String): String {
+        var text1 = textArtistInfo
+        val callResponse: Response<String>
+        try {
+            //por hacer la funcion getArticle tuve que poner !! al artisName wtf??
+            callResponse = lastFMAPI.getArtistInfo(artistName).execute()
+            val gson = Gson()
+            val jobj = gson.fromJson(callResponse.body(), JsonObject::class.java)
+            val artist = jobj["artist"].asJsonObject
+            val bio = artist["bio"].asJsonObject
+            val extract = bio["content"]
+            val url = artist["url"]
+
+
+            if (extract == null) {
+                text1 = "No Results"
+            } else {
+                text1 = extract.asString.replace("\\n", "\n")
+
+                text1 = textToHtml(text1, artistName)
+
+                val text2 = text1
+                Thread {
+                    dataBase!!.ArticleDao().insertArticle(
+                        ArticleEntity(
+                            artistName, text2, url.asString
+                        )
+                    )
+                }.start()
+            }
+            val urlString = url.asString
+            findViewById<View>(R.id.openUrlButton1).setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setData(Uri.parse(urlString))
+                startActivity(intent)
+            }
+        } catch (e1: IOException) {
+            e1.printStackTrace()
+        }
+        return text1
+    }
+
+    private fun getArticle(artistName: String?) =
+        dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
 
     private fun setDataBase() {
         dataBase = databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
@@ -136,7 +148,7 @@ class OtherInfoWindow : Activity() {
         const val ARTIST_NAME_EXTRA: String = "artistName"
     }
 
-    //esta se podria separar en dos una que haga el buil y otra que haga el textWithBold no?
+    //esta se podria separar en dos una que haga el buil y otra que haga el textWithBold
     fun textToHtml(text: String, term: String?): String {
         val builder = StringBuilder()
 
