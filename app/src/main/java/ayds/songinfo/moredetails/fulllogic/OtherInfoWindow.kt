@@ -19,29 +19,35 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.IOException
 import java.util.Locale
 
+//comentario general: tengo que prestar atencion cuando voy a separar funciones
+//de no mesclar logica de bases de datos, de la vista, logica pura, actulizar la UI etc
+// en caso de pasar esto hai es cuando tendria que separa el respectivo codigo en funciones
 
 private const val IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
 
 class OtherInfoWindow : Activity() {
-    //por que van aca y no fuera de la clase OtherInfoWindows
     private lateinit var textPaneView: TextView
     private lateinit var dataBase: ArticleDatabase
     private lateinit var lastFMAPI: LastFMAPI
 
-
+    //el profe dijo que es emjor hacer setApi() y SetDataBses() por separado
+    // y no dentro del initializeVariables() ya que son datos o variables que
+    //no tiene que ver estaria mesclando cosas de datos con cosas de la view con cosas de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
         initializeVariables()
-        //set api
-        // set database
+        setLastFMAPI()
+        setDataBase()
+        //intent.getStringExtra("artistName") esto tendria que sacarlo y ver que no se null, en caso de ser
+        // no tengo que hacer nada, y en caso de que no sean null hago el open
         open(intent.getStringExtra("artistName"))
     }
 
     private fun initializeVariables() {
+        //TODO aca tal vez tendria que estar el tema de los botones de la view o los lisenings
         textPaneView = findViewById(R.id.textPane1)
-        setLastFMAPI()
     }
 
     private fun setLastFMAPI(): LastFMAPI {
@@ -54,24 +60,29 @@ class OtherInfoWindow : Activity() {
         return lastFMAPI
     }
 
-    private fun open(artist: String?) {
+    private fun setDataBase() {
+        dataBase = databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
+        dataBase!!.ArticleDao().insertArticle(ArticleEntity("test", "sarasa", ""))
+    }
+
+    private fun open(artist: String) {
         Thread {
-            //mover
-            setDataBase()
-            getArtistInfo(artist)
             //updateUI(artistInfo)
+            updateUI(getArtistInfo(artist))
         }.start()
     }
 
-    private fun getArtistInfo(artistName: String?) {
+    private fun getArtistInfo(artistName: String): String {
         val articleArtistInfo = getArticle(artistName)
 
-        val textArtistInfo = if (articleArtistInfo != null) {
+        return if (articleArtistInfo != null) {
              getArtistBiography(articleArtistInfo)
         } else {
              getInfoArtisOfLastFMAPI(artistName!!)
         }
-        //updateUI()   function
+    }
+
+    private fun updateUI(textArtistInfo: String) {
         runOnUiThread {
             Picasso.get().load(IMAGE_URL).into(findViewById<View>(R.id.imageView1) as ImageView)
             textPaneView!!.text = Html.fromHtml(textArtistInfo)
@@ -137,17 +148,15 @@ class OtherInfoWindow : Activity() {
     private fun getArticle(artistName: String?) =
         dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
 
-    private fun setDataBase() {
-        dataBase = databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
-        dataBase!!.ArticleDao().insertArticle(ArticleEntity("test", "sarasa", ""))
-    }
-
     //Es necesario tener esto?
+    //si es necesario tener esto ya que la viu accede a este dato usando ARTIST_NAME_EXTRA
     companion object {
         const val ARTIST_NAME_EXTRA: String = "artistName"
     }
 
     //esta se podria separar en dos una que haga el buil y otra que haga el textWithBold
+    // asi como esta el profe dijo que estaba bien que no hace falta separarla, se podria hacer
+    // osea no estaria mal pero no hace falta
     fun textToHtml(text: String, term: String?): String {
         val builder = StringBuilder()
 
