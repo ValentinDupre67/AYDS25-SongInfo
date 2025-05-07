@@ -27,17 +27,19 @@ class OtherInfoWindow : Activity() {
     private lateinit var textPaneView: TextView
     private lateinit var dataBase: ArticleDatabase
     private lateinit var lastFMAPI: LastFMAPI
-    //tendria que tener el dataBases aca?
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_other_info)
         initializeVariables()
+        //set api
+        // set database
         open(intent.getStringExtra("artistName"))
     }
 
     private fun initializeVariables() {
-        setContentView(R.layout.activity_other_info)
         textPaneView = findViewById(R.id.textPane1)
         setLastFMAPI()
     }
@@ -54,36 +56,31 @@ class OtherInfoWindow : Activity() {
 
     private fun open(artist: String?) {
         Thread {
+            //mover
             setDataBase()
+            getArtistInfo(artist)
+            //updateUI(artistInfo)
         }.start()
-        getArtistInfo(artist)
     }
 
     private fun getArtistInfo(artistName: String?) {
-        Thread {
-            getInfoOfArticleArtist(artistName)
-        }.start()
-    }
-
-    private fun getInfoOfArticleArtist(artistName: String?) {
         val articleArtistInfo = getArticle(artistName)
-        var textArtistInfo = ""
 
-        if (articleArtistInfo != null) {
-            textArtistInfo = getArtistBiography(textArtistInfo, articleArtistInfo)
+        val textArtistInfo = if (articleArtistInfo != null) {
+             getArtistBiography(articleArtistInfo)
         } else {
-            textArtistInfo = getInfoArtisOfLastFMAPI(artistName!!, textArtistInfo)
+             getInfoArtisOfLastFMAPI(artistName!!)
         }
+        //updateUI()   function
         runOnUiThread {
             Picasso.get().load(IMAGE_URL).into(findViewById<View>(R.id.imageView1) as ImageView)
             textPaneView!!.text = Html.fromHtml(textArtistInfo)
         }
     }
 
-    private fun getArtistBiography(textArtistInfo: String,article: ArticleEntity): String {
-        var text = textArtistInfo
+    private fun getArtistBiography(article: ArticleEntity): String {
 
-        text = "[*]" + article.biography
+        var text = "[*]" + article.biography
         val urlString = article.articleUrl
         findViewById<View>(R.id.openUrlButton1).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
@@ -93,8 +90,8 @@ class OtherInfoWindow : Activity() {
         return text
     }
 
-    private fun getInfoArtisOfLastFMAPI(artistName: String, textArtistInfo: String): String {
-        var text1 = textArtistInfo
+    private fun getInfoArtisOfLastFMAPI(artistName: String): String {
+        var text = ""
         val callResponse: Response<String>
         try {
             //por hacer la funcion getArticle tuve que poner !! al artisName wtf??
@@ -108,14 +105,15 @@ class OtherInfoWindow : Activity() {
 
 
             if (extract == null) {
-                text1 = "No Results"
+                text = "No Results"
             } else {
-                text1 = extract.asString.replace("\\n", "\n")
+                text = extract.asString.replace("\\n", "\n")
 
-                text1 = textToHtml(text1, artistName)
+                text = textToHtml(text, artistName)
 
-                val text2 = text1
+                val text2 = text
                 Thread {
+                    //funcion na parte
                     dataBase!!.ArticleDao().insertArticle(
                         ArticleEntity(
                             artistName, text2, url.asString
@@ -124,6 +122,7 @@ class OtherInfoWindow : Activity() {
                 }.start()
             }
             val urlString = url.asString
+            //hacer funcion
             findViewById<View>(R.id.openUrlButton1).setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.setData(Uri.parse(urlString))
@@ -132,7 +131,7 @@ class OtherInfoWindow : Activity() {
         } catch (e1: IOException) {
             e1.printStackTrace()
         }
-        return text1
+        return text
     }
 
     private fun getArticle(artistName: String?) =
