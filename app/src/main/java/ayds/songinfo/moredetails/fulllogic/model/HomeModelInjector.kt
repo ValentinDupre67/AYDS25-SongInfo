@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room.databaseBuilder
 import ayds.songinfo.moredetails.fulllogic.model.repository.local.ArticleDatabase
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
-import ayds.songinfo.moredetails.fulllogic.view.HomePresenter
+import ayds.songinfo.moredetails.fulllogic.view.HomeView
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
@@ -18,7 +18,7 @@ object HomeModelInjector {
 
 
 
-    fun initHomeModel(homePresenter: HomePresenter) {
+    fun initHomeModel(homePresenter: HomeView) {
         initArticleDatabase(homePresenter)
         initLastFMAPI()
         homeModel = HomeModelImpl(articleDatabase, lastFMAPI)
@@ -26,7 +26,7 @@ object HomeModelInjector {
 
     fun getHomeModel(): HomeModel = homeModel
 
-    fun initArticleDatabase(homePresenter: HomePresenter) {
+    fun initArticleDatabase(homePresenter: HomeView) {
         articleDatabase =
             databaseBuilder(homePresenter as Context, ArticleDatabase::class.java, "database-article").build()
     }

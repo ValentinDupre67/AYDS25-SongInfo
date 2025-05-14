@@ -26,18 +26,23 @@ import java.util.Locale
 private const val LASTFM_IMAGE_URL =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
 
-data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String)
+data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String) // este es mi UIState
 
-interface HomePresenter {
+interface HomeView {
     val uiEventObservable: Observable<HomeUiEvent> //pre tiene que ser Observable<HomeUiState>
     val uiState: HomeUiState // pre
 
 }
-class HomePresenterImpl : Activity(), HomePresenter {
+
+//la vista conoce al presentador
+
+class HomeViewImpl : Activity(), HomeView {
 
     private val onActionSubject = Subject<HomeUiEvent>() //pre
 
     private lateinit var homeModel: HomeModel
+
+    private lateinit var homePrsenter : HomeView
 
     override val uiEventObservable: Observable<HomeUiEvent> = onActionSubject
     override var uiState: HomeUiState = HomeUiState()
@@ -63,6 +68,8 @@ class HomePresenterImpl : Activity(), HomePresenter {
     private fun initModule() {
         HomePresenterInjector.init(this)
         homeModel = HomeModelInjector.getHomeModel()
+
+        HomeViewInjector.init()
     }
 
     private fun initViewProperties() {

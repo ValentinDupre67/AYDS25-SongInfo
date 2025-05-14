@@ -18,7 +18,7 @@ import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.model.entities.Song.EmptySong
 import ayds.songinfo.home.model.entities.Song.SpotifySong
 import ayds.songinfo.home.view.HomeUiState.Companion.DEFAULT_IMAGE
-import ayds.songinfo.moredetails.fulllogic.view.HomePresenterImpl
+import ayds.songinfo.moredetails.fulllogic.view.HomeViewImpl
 import ayds.songinfo.utils.UtilsInjector
 import ayds.songinfo.utils.navigation.NavigationUtils
 import ayds.songinfo.utils.view.ImageLoader
@@ -51,8 +51,8 @@ class HomeViewActivity : Activity(), HomeView {
     override var uiState: HomeUiState = HomeUiState()
 
     override fun navigateToOtherDetails(artistName: String) {
-        val intent = Intent(this, HomePresenterImpl::class.java)
-        intent.putExtra(HomePresenterImpl.ARTIST_NAME_EXTRA, artistName)
+        val intent = Intent(this, HomeViewImpl::class.java)
+        intent.putExtra(HomeViewImpl.ARTIST_NAME_EXTRA, artistName)
         startActivity(intent)
     }
 
