@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic.presenter
+package ayds.songinfo.moredetails.fulllogic.view
 
 import android.app.Activity
 import android.content.Intent
@@ -8,19 +8,16 @@ import android.text.Html
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.room.Room.databaseBuilder
+import ayds.observer.Observable
 import ayds.songinfo.R
+import ayds.songinfo.home.view.HomeUiEvent
+import ayds.songinfo.home.view.HomeUiState
 import ayds.songinfo.moredetails.fulllogic.model.HomeModel
 import ayds.songinfo.moredetails.fulllogic.model.HomeModelInjector
-import ayds.songinfo.moredetails.fulllogic.model.repository.ArticleDatabase
-import ayds.songinfo.moredetails.fulllogic.model.entiti.ArticleEntity
-import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
+import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterInjector
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
-import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.io.IOException
 import java.util.Locale
 
 //private const val ARTICLE_BD_NAME = "database-article"
@@ -31,6 +28,8 @@ private const val LASTFM_IMAGE_URL =
 data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String)
 
 interface HomePresenter {
+    val uiEventObservable: Observable<HomeUiEvent>
+    val uiState: HomeUiState
 
 }
 class HomePresenterImpl : Activity(), HomePresenter {

@@ -2,9 +2,9 @@ package ayds.songinfo.moredetails.fulllogic.model
 
 import android.content.Context
 import androidx.room.Room.databaseBuilder
-import ayds.songinfo.moredetails.fulllogic.model.repository.ArticleDatabase
+import ayds.songinfo.moredetails.fulllogic.model.repository.local.ArticleDatabase
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
-import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenter
+import ayds.songinfo.moredetails.fulllogic.view.HomePresenter
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 

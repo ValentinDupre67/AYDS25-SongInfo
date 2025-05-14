@@ -1,7 +1,7 @@
 package ayds.songinfo.moredetails.fulllogic.model
-import ayds.songinfo.moredetails.fulllogic.model.repository.ArticleDatabase
+import ayds.songinfo.moredetails.fulllogic.model.repository.local.ArticleDatabase
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
-import ayds.songinfo.moredetails.fulllogic.presenter.ArtistBiography
+import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
 import ayds.songinfo.moredetails.fulllogic.model.entiti.ArticleEntity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -55,6 +55,8 @@ class HomeModelImpl(
     }
     private fun getSongFromService(artistName: String) =
         lastFMAPI.getArtistInfo(artistName).execute()
+
+    //esta parte deberia de ir en un resolver como en el spotify resolver del mvc en la m arte del modelo
     private fun getArtistBioFromExternalData(serviceData: String?, artistName: String): ArtistBiography {
         val gson = Gson()
         val jobj = gson.fromJson(serviceData, JsonObject::class.java)
