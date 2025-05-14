@@ -18,6 +18,7 @@ import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.model.entities.Song.EmptySong
 import ayds.songinfo.home.model.entities.Song.SpotifySong
 import ayds.songinfo.home.view.HomeUiState.Companion.DEFAULT_IMAGE
+import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterImpl
 import ayds.songinfo.utils.UtilsInjector
 import ayds.songinfo.utils.navigation.NavigationUtils
 import ayds.songinfo.utils.view.ImageLoader
@@ -33,6 +34,7 @@ interface HomeView {
 class HomeViewActivity : Activity(), HomeView {
 
     private val onActionSubject = Subject<HomeUiEvent>()
+    //por que no se pasa por parametro?
     private lateinit var homeModel: HomeModel
     private val songDescriptionHelper: SongDescriptionHelper = HomeViewInjector.songDescriptionHelper
     private val imageLoader: ImageLoader = UtilsInjector.imageLoader
@@ -49,8 +51,8 @@ class HomeViewActivity : Activity(), HomeView {
     override var uiState: HomeUiState = HomeUiState()
 
     override fun navigateToOtherDetails(artistName: String) {
-        val intent = Intent(this, ayds.songinfo.moredetails.fulllogic.OtherInfoWindow::class.java)
-        intent.putExtra(ayds.songinfo.moredetails.fulllogic.OtherInfoWindow.ARTIST_NAME_EXTRA, artistName)
+        val intent = Intent(this, HomePresenterImpl::class.java)
+        intent.putExtra(HomePresenterImpl.ARTIST_NAME_EXTRA, artistName)
         startActivity(intent)
     }
 
