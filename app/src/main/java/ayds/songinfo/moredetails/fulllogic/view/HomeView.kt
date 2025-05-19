@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic
+package ayds.songinfo.moredetails.fulllogic.view
 
 import android.app.Activity
 import android.content.Intent
@@ -10,6 +10,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.room.Room.databaseBuilder
 import ayds.songinfo.R
+import ayds.songinfo.moredetails.fulllogic.model.repository.local.room.ArticleDatabase
+import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
+import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
@@ -25,7 +28,11 @@ private const val LASTFM_IMAGE_URL =
 
 data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String)
 
-class OtherInfoWindow : Activity() {
+interface HomeView{
+
+}
+
+internal class HomeViewImpl : Activity(), HomeView {
     private lateinit var articleTextView: TextView
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
@@ -38,10 +45,15 @@ class OtherInfoWindow : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
 
+        initModule()
         initViewProperties()
         initArticleDatabase()
-        initLastFMAPI()
+        initLastFMAPI() //TODO se va
         getArtistInfoAsync()
+    }
+
+    private fun initModule() {
+        HomeViewInjector.init(this)
     }
 
     private fun initViewProperties() {
@@ -55,7 +67,7 @@ class OtherInfoWindow : Activity() {
             databaseBuilder(this, ArticleDatabase::class.java, ARTICLE_BD_NAME).build()
     }
 
-    private fun initLastFMAPI() {
+    private fun initLastFMAPI() { //TODO se va
         val retrofit = Retrofit.Builder()
             .baseUrl(LASTFM_BASE_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
