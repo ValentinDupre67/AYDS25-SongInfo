@@ -9,10 +9,15 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/2.0/"
 object HomeModelInjector {
 
+    private lateinit var homeModel: HomeModel
     private lateinit var lastFMAPI: LastFMAPI
 
     fun init() {
         initLastFMAPI()
+
+        val repo: ArticleRepository = ArticleRepositoryImpl(lastFMAPI)
+
+        homeModel = HomeModelImpl(repo)
     }
     private fun initLastFMAPI() {
         val retrofit = Retrofit.Builder()
@@ -28,5 +33,5 @@ object HomeModelInjector {
 //
 //    homeModel = HomeModelImpl(repository)
 
-    val respository: ArticleRepository = ArticleRepositoryImpl(lastFMAPI)
+
 }
