@@ -13,6 +13,8 @@ import ayds.songinfo.R
 import ayds.songinfo.moredetails.fulllogic.model.repository.local.room.ArticleDatabase
 import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
+import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenter
+import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterInjector
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
@@ -37,6 +39,8 @@ internal class HomeViewImpl : Activity(), HomeView {
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
 
+    private lateinit var homePresenter: HomePresenter //TODO nuevo
+
     private lateinit var articleDatabase: ArticleDatabase
 
     private lateinit var lastFMAPI: LastFMAPI
@@ -45,15 +49,24 @@ internal class HomeViewImpl : Activity(), HomeView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
 
-        initModule()
+        initModule() //TODO nuevo
+
         initViewProperties()
         initArticleDatabase()
         initLastFMAPI() //TODO se va
+
+        initObservers()
+
         getArtistInfoAsync()
+    }
+
+    private fun initObservers() {
+
     }
 
     private fun initModule() {
         HomeViewInjector.init(this)
+        homePresenter = HomePresenterInjector.getPresenter() //TODO por que no lo pasa por parametro en el constructor?
     }
 
     private fun initViewProperties() {
