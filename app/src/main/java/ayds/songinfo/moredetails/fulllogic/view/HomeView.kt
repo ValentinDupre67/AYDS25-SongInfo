@@ -28,8 +28,6 @@ private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/2.0/"
 private const val LASTFM_IMAGE_URL =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
 
-data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String)
-
 interface HomeView{
 
 }
@@ -95,12 +93,12 @@ internal class HomeViewImpl : Activity(), HomeView {
         }.start()
     }
 
-    private fun getArtistInfo() {
+    private fun getArtistInfo() { //TODO se va pero la parte de UpdateUi hay que ver como manejarla
         val artistBiography = getArtistInfoFromRepository()
         updateUi(artistBiography)
     }
 
-    private fun getArtistInfoFromRepository(): ArtistBiography {
+    private fun getArtistInfoFromRepository(): ArtistBiography { //TODO se va
         val artistName = getArtistName()
 
         val dbArticle = getArticleFromDB(artistName)
