@@ -56,6 +56,6 @@ class HomeControllerTest {
 
         onActionSubject.notify(HomeUiEvent.OpenSongUrl)
 
-        verify { homeView.openExternalLink("urls") }
+        verify { homeView.openExternalLink("url") }
     }
 }
