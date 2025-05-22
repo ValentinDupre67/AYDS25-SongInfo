@@ -1,18 +1,25 @@
 package ayds.songinfo.moredetails.fulllogic.presenter
 
 import ayds.observer.Observable
-import ayds.observer.Observer
 import ayds.observer.Subject
-import retrofit2.Response
+import ayds.songinfo.moredetails.fulllogic.model.HomeModel
+import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
 
 interface HomePresenter{
-    val songObservable: Observable<Response<String>>
+    val songObservable: Observable<ArtistBiography>
+    fun getArtistInfo(artistName: String)
 }
 
-internal class HomePresenterImpl(): HomePresenter{
+internal class HomePresenterImpl(
+    private val homeModel: HomeModel) : HomePresenter{
 
-    override val songObservable = Subject<Response<String>>()
+    override val songObservable = Subject<ArtistBiography>()
 
+    override fun getArtistInfo(artistName: String) {
+        homeModel.getArtistInfo(artistName).let {
+            songObservable.notify(it)
+        }
 
+    }
 
 }

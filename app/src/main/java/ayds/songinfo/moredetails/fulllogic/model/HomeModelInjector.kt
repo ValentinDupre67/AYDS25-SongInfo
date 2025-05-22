@@ -18,9 +18,13 @@ object HomeModelInjector {
     private lateinit var lastFMAPI: LastFMAPI
     private lateinit var articleDatabase: ArticleDatabase
 
+    fun getHomeModel(): HomeModel = homeModel
+
     fun init(context: HomeView) {
         initLastFMAPI()
         initArticleDatabase(context)
+
+
 
         val repo: ArticleRepository = ArticleRepositoryImpl(lastFMAPI, articleDatabase)
 

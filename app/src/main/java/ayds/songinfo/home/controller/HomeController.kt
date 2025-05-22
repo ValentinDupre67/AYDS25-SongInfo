@@ -17,6 +17,7 @@ internal class HomeControllerImpl(
 
     private lateinit var homeView: HomeView
 
+
     override fun setHomeView(homeView: HomeView) {
         this.homeView = homeView
         homeView.uiEventObservable.subscribe(observer)

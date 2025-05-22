@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,6 +29,7 @@ private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/2.0/"
 private const val LASTFM_IMAGE_URL =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
 
+//data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String) // TODO este es mi UIState
 interface HomeView{
 
 }
@@ -47,23 +49,35 @@ internal class HomeViewImpl : Activity(), HomeView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
 
+        Log.d("hola0","aaaaaaaaaaaaa")
+
         initModule() //TODO nuevo
+
+        Log.d("hola1","aaaaaaaaaaaaa")
 
         initViewProperties()
         initArticleDatabase()
         initLastFMAPI() //TODO se va
 
+        getArtistInfoAsync()
+
+        Log.d("hola2","aaaaaaaaaaaaa")
         initObservers()
 
-        getArtistInfoAsync()
+
     }
 
     private fun initObservers() {
-
+        homePresenter.songObservable
+            .subscribe { value ->
+                updateUi(value)
+            }
     }
 
     private fun initModule() {
+        Log.d("hola3","inittttttt")
         HomeViewInjector.init(this)
+
         homePresenter = HomePresenterInjector.getPresenter() //TODO por que no lo pasa por parametro en el constructor?
     }
 
@@ -94,8 +108,9 @@ internal class HomeViewImpl : Activity(), HomeView {
     }
 
     private fun getArtistInfo() { //TODO se va pero la parte de UpdateUi hay que ver como manejarla
-        val artistBiography = getArtistInfoFromRepository()
-        updateUi(artistBiography)
+        //val artistBiography = getArtistInfoFromRepository()
+        val artistName = getArtistName()
+        homePresenter.getArtistInfo(artistName)
     }
 
     private fun getArtistInfoFromRepository(): ArtistBiography { //TODO se va
