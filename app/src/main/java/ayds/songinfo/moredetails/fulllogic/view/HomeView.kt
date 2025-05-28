@@ -5,31 +5,18 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.room.Room.databaseBuilder
 import ayds.songinfo.R
-import ayds.songinfo.moredetails.fulllogic.model.repository.local.room.ArticleDatabase
-import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
-import ayds.songinfo.moredetails.fulllogic.model.repository.external.LastFMAPI
 import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenter
 import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterInjector
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
-import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.io.IOException
-import java.util.Locale
 
-private const val ARTICLE_BD_NAME = "database-article"
-private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/2.0/"
+//Esto lo dejo aca???
 private const val LASTFM_IMAGE_URL =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
 
-//data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String) // TODO este es mi UIState
 interface HomeView{
 
 }
@@ -38,46 +25,23 @@ internal class HomeViewImpl : Activity(), HomeView {
     private lateinit var articleTextView: TextView
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
+    private lateinit var homePresenter: HomePresenter
 
-    private lateinit var homePresenter: HomePresenter //TODO nuevo
-
-    private lateinit var articleDatabase: ArticleDatabase
-
-    private lateinit var lastFMAPI: LastFMAPI
+    //TODO esto est bien?
+    private val homeViewResolver : HomeViewResolver = HomeViewInjector.homeViewResolver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
-
-        Log.d("hola0","aaaaaaaaaaaaa")
-
-        initModule() //TODO nuevo
-
-        Log.d("hola1","aaaaaaaaaaaaa")
-
+        initModule()
         initViewProperties()
-        initArticleDatabase()
-        initLastFMAPI() //TODO se va
-
         getArtistInfoAsync()
-
-        Log.d("hola2","aaaaaaaaaaaaa")
         initObservers()
-
-
-    }
-
-    private fun initObservers() {
-        homePresenter.songObservable
-            .subscribe { value ->
-                updateUi(value)
-            }
     }
 
     private fun initModule() {
-        Log.d("hola3","inittttttt")
-        HomeViewInjector.init(this)
 
+        HomeViewInjector.init(this)
         homePresenter = HomePresenterInjector.getPresenter() //TODO por que no lo pasa por parametro en el constructor?
     }
 
@@ -86,19 +50,11 @@ internal class HomeViewImpl : Activity(), HomeView {
         openUrlButton = findViewById(R.id.openUrlButton)
         lastFMImageView = findViewById(R.id.lastFMImageView)
     }
-
-    private fun initArticleDatabase() {
-        articleDatabase =
-            databaseBuilder(this, ArticleDatabase::class.java, ARTICLE_BD_NAME).build()
-    }
-
-    private fun initLastFMAPI() { //TODO se va
-        val retrofit = Retrofit.Builder()
-            .baseUrl(LASTFM_BASE_URL)
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-
-        lastFMAPI = retrofit.create(LastFMAPI::class.java)
+    private fun initObservers() {
+        homePresenter.songObservable
+            .subscribe { value ->
+                updateUi(value)
+            }
     }
 
     private fun getArtistInfoAsync() {
@@ -108,76 +64,8 @@ internal class HomeViewImpl : Activity(), HomeView {
     }
 
     private fun getArtistInfo() { //TODO se va pero la parte de UpdateUi hay que ver como manejarla
-        //val artistBiography = getArtistInfoFromRepository()
         val artistName = getArtistName()
         homePresenter.getArtistInfo(artistName)
-    }
-
-    private fun getArtistInfoFromRepository(): ArtistBiography { //TODO se va
-        val artistName = getArtistName()
-
-        val dbArticle = getArticleFromDB(artistName)
-
-        val artistBiography: ArtistBiography
-
-        if (dbArticle != null) {
-            artistBiography = dbArticle.markItAsLocal()
-        } else {
-            artistBiography = getArticleFromService(artistName)
-            if (artistBiography.biography.isNotEmpty()) {
-                insertArtistIntoDB(artistBiography)
-            }
-        }
-        return artistBiography
-    }
-
-    private fun ArtistBiography.markItAsLocal() = copy(biography = "[*]$biography")
-
-    private fun getArticleFromDB(artistName: String): ArtistBiography? {
-        val artistEntity = articleDatabase.ArticleDao().getArticleByArtistName(artistName)
-        return artistEntity?.let {
-            ArtistBiography(artistName, artistEntity.biography, artistEntity.articleUrl)
-        }
-    }
-
-    private fun getArticleFromService(artistName: String): ArtistBiography {
-
-        var artistBiography = ArtistBiography(artistName, "", "")
-        try {
-            val callResponse = getSongFromService(artistName)
-            artistBiography = getArtistBioFromExternalData(callResponse.body(), artistName)
-        } catch (e1: IOException) {
-            e1.printStackTrace()
-        }
-
-        return artistBiography
-    }
-
-    private fun getArtistBioFromExternalData(
-        serviceData: String?,
-        artistName: String
-    ): ArtistBiography {
-        val gson = Gson()
-        val jobj = gson.fromJson(serviceData, JsonObject::class.java)
-
-        val artist = jobj["artist"].getAsJsonObject()
-        val bio = artist["bio"].getAsJsonObject()
-        val extract = bio["content"]
-        val url = artist["url"]
-        val text = extract?.asString ?: "No Results"
-
-        return ArtistBiography(artistName, text, url.asString)
-    }
-
-    private fun getSongFromService(artistName: String) =
-        lastFMAPI.getArtistInfo(artistName).execute()
-
-    private fun insertArtistIntoDB(artistBiography: ArtistBiography) {
-        articleDatabase.ArticleDao().insertArticle(
-            ArticleEntity(
-                artistBiography.artistName, artistBiography.biography, artistBiography.articleUrl
-            )
-        )
     }
 
     private fun updateUi(artistBiography: ArtistBiography) {
@@ -209,23 +97,7 @@ internal class HomeViewImpl : Activity(), HomeView {
 
     private fun updateArticleText(artistBiography: ArtistBiography) {
         val text = artistBiography.biography.replace("\\n", "\n")
-        articleTextView.text = Html.fromHtml(textToHtml(text, artistBiography.artistName))
-    }
-
-    private fun textToHtml(text: String, term: String?): String {
-        val builder = StringBuilder()
-        builder.append("<html><div width=400>")
-        builder.append("<font face=\"arial\">")
-        val textWithBold = text
-            .replace("'", " ")
-            .replace("\n", "<br>")
-            .replace(
-                "(?i)$term".toRegex(),
-                "<b>" + term!!.uppercase(Locale.getDefault()) + "</b>"
-            )
-        builder.append(textWithBold)
-        builder.append("</font></div></html>")
-        return builder.toString()
+        articleTextView.text = Html.fromHtml(homeViewResolver.textToHtml(text, artistBiography.artistName))
     }
 
     companion object {

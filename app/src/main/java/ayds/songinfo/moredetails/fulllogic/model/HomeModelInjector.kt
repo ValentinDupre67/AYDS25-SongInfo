@@ -23,11 +23,7 @@ object HomeModelInjector {
     fun init(context: HomeView) {
         initLastFMAPI()
         initArticleDatabase(context)
-
-
-
         val repo: ArticleRepository = ArticleRepositoryImpl(lastFMAPI, articleDatabase)
-
         homeModel = HomeModelImpl(repo)
     }
 
@@ -44,11 +40,4 @@ object HomeModelInjector {
 
         lastFMAPI = retrofit.create(LastFMAPI::class.java)
     }
-
-//    val repository: SongRepository =
-//        SongRepositoryImpl(spotifyLocalRoomStorage, spotifyTrackService)
-//
-//    homeModel = HomeModelImpl(repository)
-
-
 }

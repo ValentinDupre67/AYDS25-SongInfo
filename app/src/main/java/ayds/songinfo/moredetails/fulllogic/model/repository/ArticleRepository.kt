@@ -14,13 +14,12 @@ interface ArticleRepository{
 }
 
 internal class ArticleRepositoryImpl(
-    private val lastFMAPI: LastFMAPI,
-    private var articleDatabase: ArticleDatabase
+    private val externalDataBase: LastFMAPI,
+    private var localDataBase: ArticleDatabase
 ): ArticleRepository{
 
 
     override fun getArtistInfoFromRepository(artistName: String): ArtistBiography {
-        //val artistName = getArtistName()
 
         val dbArticle = getArticleFromDB(artistName)
 
@@ -38,10 +37,10 @@ internal class ArticleRepositoryImpl(
     }
 
     private fun getSongFromService(artistName: String): Response<String> =
-        lastFMAPI.getArtistInfo(artistName).execute()
+        externalDataBase.getArtistInfo(artistName).execute()
 
     private fun getArticleFromDB(artistName: String): ArtistBiography? {
-        val artistEntity = articleDatabase.ArticleDao().getArticleByArtistName(artistName)
+        val artistEntity = localDataBase.ArticleDao().getArticleByArtistName(artistName)
         return artistEntity?.let {
             ArtistBiography(artistName, artistEntity.biography, artistEntity.articleUrl)
         }
@@ -62,6 +61,7 @@ internal class ArticleRepositoryImpl(
         return artistBiography
     }
 
+    //TODO que se podia hacer con esto?
     private fun getArtistBioFromExternalData(
         serviceData: String?,
         artistName: String
@@ -79,7 +79,7 @@ internal class ArticleRepositoryImpl(
     }
 
     private fun insertArtistIntoDB(artistBiography: ArtistBiography) {
-        articleDatabase.ArticleDao().insertArticle(
+        localDataBase.ArticleDao().insertArticle(
             ArticleEntity(
                 artistBiography.artistName, artistBiography.biography, artistBiography.articleUrl
             )
