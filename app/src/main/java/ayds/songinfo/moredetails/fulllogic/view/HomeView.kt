@@ -40,7 +40,6 @@ internal class HomeViewImpl : Activity(), HomeView {
     }
 
     private fun initModule() {
-
         HomeViewInjector.init(this)
         homePresenter = HomePresenterInjector.getPresenter() //TODO por que no lo pasa por parametro en el constructor?
     }
