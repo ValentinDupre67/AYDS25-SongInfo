@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic
+package ayds.songinfo.moredetails.fulllogic.presentation
 
 import android.app.Activity
 import android.content.Intent
@@ -10,6 +10,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.room.Room.databaseBuilder
 import ayds.songinfo.R
+import ayds.songinfo.moredetails.fulllogic.data.LastFMAPI
+import ayds.songinfo.moredetails.fulllogic.domain.ArticleDatabase
+import ayds.songinfo.moredetails.fulllogic.domain.ArticleEntity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
@@ -25,22 +28,26 @@ private const val LASTFM_IMAGE_URL =
 
 data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String)
 
-class OtherInfoWindow : Activity() {
+interface View{
+
+}
+
+class ViewImpl() : Activity(), View {
     private lateinit var articleTextView: TextView
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
 
-    private lateinit var articleDatabase: ArticleDatabase
+    private lateinit var articleDatabase: ArticleDatabase //chau
 
-    private lateinit var lastFMAPI: LastFMAPI
+    private lateinit var lastFMAPI: LastFMAPI //chau
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
 
         initViewProperties()
-        initArticleDatabase()
-        initLastFMAPI()
+        initArticleDatabase() //chau
+        initLastFMAPI() //chau
         getArtistInfoAsync()
     }
 
@@ -50,12 +57,12 @@ class OtherInfoWindow : Activity() {
         lastFMImageView = findViewById(R.id.lastFMImageView)
     }
 
-    private fun initArticleDatabase() {
+    private fun initArticleDatabase() { //TODO chau
         articleDatabase =
             databaseBuilder(this, ArticleDatabase::class.java, ARTICLE_BD_NAME).build()
     }
 
-    private fun initLastFMAPI() {
+    private fun initLastFMAPI() { //TODO chau
         val retrofit = Retrofit.Builder()
             .baseUrl(LASTFM_BASE_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -75,7 +82,7 @@ class OtherInfoWindow : Activity() {
         updateUi(artistBiography)
     }
 
-    private fun getArtistInfoFromRepository(): ArtistBiography {
+    private fun getArtistInfoFromRepository(): ArtistBiography {  //TODO chau
         val artistName = getArtistName()
 
         val dbArticle = getArticleFromDB(artistName)
@@ -93,16 +100,16 @@ class OtherInfoWindow : Activity() {
         return artistBiography
     }
 
-    private fun ArtistBiography.markItAsLocal() = copy(biography = "[*]$biography")
+    private fun ArtistBiography.markItAsLocal() = copy(biography = "[*]$biography") //TODO chau
 
-    private fun getArticleFromDB(artistName: String): ArtistBiography? {
+    private fun getArticleFromDB(artistName: String): ArtistBiography? { //TODO chau
         val artistEntity = articleDatabase.ArticleDao().getArticleByArtistName(artistName)
         return artistEntity?.let {
             ArtistBiography(artistName, artistEntity.biography, artistEntity.articleUrl)
         }
     }
 
-    private fun getArticleFromService(artistName: String): ArtistBiography {
+    private fun getArticleFromService(artistName: String): ArtistBiography { //TODO chau
 
         var artistBiography = ArtistBiography(artistName, "", "")
         try {
@@ -115,7 +122,7 @@ class OtherInfoWindow : Activity() {
         return artistBiography
     }
 
-    private fun getArtistBioFromExternalData(
+    private fun getArtistBioFromExternalData( //TODO chau
         serviceData: String?,
         artistName: String
     ): ArtistBiography {
@@ -132,9 +139,9 @@ class OtherInfoWindow : Activity() {
     }
 
     private fun getSongFromService(artistName: String) =
-        lastFMAPI.getArtistInfo(artistName).execute()
+        lastFMAPI.getArtistInfo(artistName).execute() //TODO chau
 
-    private fun insertArtistIntoDB(artistBiography: ArtistBiography) {
+    private fun insertArtistIntoDB(artistBiography: ArtistBiography) { //TODO chau
         articleDatabase.ArticleDao().insertArticle(
             ArticleEntity(
                 artistBiography.artistName, artistBiography.biography, artistBiography.articleUrl

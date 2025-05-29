@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic
+package ayds.songinfo.moredetails.fulllogic.data
 
 import retrofit2.Call
 import retrofit2.http.GET
