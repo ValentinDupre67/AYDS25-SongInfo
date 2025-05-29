@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic.model.repository.external
+package ayds.songinfo.moredetails.fulllogic.model.repository.external.auth
 
 import retrofit2.Call
 import retrofit2.http.GET
