@@ -1,5 +1,4 @@
-package ayds.songinfo.home
-
+import ayds.songinfo.home.model.HomeModel
 import ayds.songinfo.home.model.HomeModelImpl
 import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.model.repository.SongRepository
@@ -9,37 +8,33 @@ import io.mockk.verify
 import org.junit.Assert
 import org.junit.Test
 
-class HomeModelTest {
+class HomeModelTest{
 
-    private val repository: SongRepository = mockk()
-    private val homeModel = HomeModelImpl(repository)
-
+    private val repository : SongRepository = mockk(relaxUnitFun = true)
+    private val homeModel : HomeModel = HomeModelImpl(repository)
     @Test
-    fun `getSongById should return song`() {
-        val song: Song = mockk()
-        every { repository.getSongById("id") } returns song
+    fun `when call getSongById should return song`(){
+        val song : Song = mockk();
+        every { repository.getSongById("mockk") } returns song
 
-        val result = homeModel.getSongById("id")
+        val result = homeModel.getSongById("mockk")
 
         Assert.assertEquals(song, result)
     }
-
+    //no tendira que testear cuando no se le pasa nada tipo "" o null o otro caso??
 
     @Test
-    fun `on search song it should notify the result`() {
-        val song: Song = mockk()
-        every { repository.getSongByTerm("term") } returns song
-        val songTester: (Song) -> Unit = mockk(relaxed = true)
+    fun `when call searchSong should call repository to search song`(){
+        val song : Song = mockk();
+        every { repository.getSongByTerm("mockk") } returns song
+        val songTester : (Song) -> Unit = mockk(relaxed = true)
 
-        //En este caso el observable es una de las condiciones de "salida"
-        homeModel.songObservable.subscribe {
+        homeModel.songObservable.subscribe{
             songTester(it)
         }
 
-        homeModel.searchSong("term")
+        homeModel.searchSong("mockk")
 
-        verify { songTester(song) }
+        verify { songTester(song) } //que esta pasando aca?
     }
-
-
 }
