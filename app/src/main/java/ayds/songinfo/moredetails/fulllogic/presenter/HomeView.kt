@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic.view
+package ayds.songinfo.moredetails.fulllogic.presenter
 
 import android.app.Activity
 import android.content.Intent
@@ -9,8 +9,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import ayds.songinfo.R
-import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenter
-import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterInjector
 import com.squareup.picasso.Picasso
 
 //Esto lo dejo aca???
@@ -27,21 +25,22 @@ internal class HomeViewImpl : Activity(), HomeView {
     private lateinit var lastFMImageView: ImageView
     private lateinit var homePresenter: HomePresenter
 
-    //TODO esto est bien?
+
     private val homeViewResolver : HomeViewResolver = HomeViewInjector.homeViewResolver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
-        initModule()
+
         initViewProperties()
-        getArtistInfoAsync()
+        initModule()
         initObservers()
+        getArtistInfoAsync()
     }
 
     private fun initModule() {
         HomeViewInjector.init(this)
-        homePresenter = HomePresenterInjector.getPresenter() //TODO por que no lo pasa por parametro en el constructor?
+        homePresenter = HomePresenterInjector.getPresenter()
     }
 
     private fun initViewProperties() {
@@ -62,7 +61,7 @@ internal class HomeViewImpl : Activity(), HomeView {
         }.start()
     }
 
-    private fun getArtistInfo() { //TODO se va pero la parte de UpdateUi hay que ver como manejarla
+    private fun getArtistInfo() { 
         val artistName = getArtistName()
         homePresenter.getArtistInfo(artistName)
     }

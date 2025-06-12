@@ -1,25 +1,17 @@
 package ayds.songinfo.moredetails.fulllogic.model.repository
 
-import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
+import ayds.songinfo.moredetails.fulllogic.domain.ArticleRepository
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.ServiceDataBase
 import ayds.songinfo.moredetails.fulllogic.model.repository.local.LocalDataBase
-import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import retrofit2.Response
-import java.io.IOException
-
-interface ArticleRepository{
-    fun getArtistInfoFromRepository(artistName: String): ArtistBiography
-}
+import ayds.songinfo.moredetails.fulllogic.presenter.ArtistBiography
 
 internal class ArticleRepositoryImpl(
     private val externalDataBase: ServiceDataBase,
     private var localDataBase: LocalDataBase
-): ArticleRepository{
+): ArticleRepository {
 
 
-    override fun getArtistInfoFromRepository(artistName: String): ArtistBiography {
+    override fun getArtistInfo(artistName: String): ArtistBiography {
 
         val dbArticle = localDataBase.getArticle(artistName)
 

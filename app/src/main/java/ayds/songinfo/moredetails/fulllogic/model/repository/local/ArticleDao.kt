@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
+import ayds.songinfo.moredetails.fulllogic.domain.entities.ArticleEntity
 
 @Dao
 interface ArticleDao {

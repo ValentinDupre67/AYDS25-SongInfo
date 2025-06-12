@@ -1,6 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic.view
-
-import ayds.songinfo.moredetails.fulllogic.presenter.HomePresenterInjector
+package ayds.songinfo.moredetails.fulllogic.presenter
 
 object HomeViewInjector {
 

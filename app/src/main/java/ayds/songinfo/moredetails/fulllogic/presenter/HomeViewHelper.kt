@@ -1,4 +1,4 @@
-package ayds.songinfo.moredetails.fulllogic.view
+package ayds.songinfo.moredetails.fulllogic.presenter
 
 import java.util.Locale
 

@@ -1,8 +1,8 @@
 package ayds.songinfo.moredetails.fulllogic.model.repository.local
 
-import ayds.songinfo.moredetails.fulllogic.model.entities.ArticleEntity
+import ayds.songinfo.moredetails.fulllogic.domain.entities.ArticleEntity
 import ayds.songinfo.moredetails.fulllogic.model.repository.local.room.ArticleDatabase
-import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
+import ayds.songinfo.moredetails.fulllogic.presenter.ArtistBiography
 
 interface LocalDataBase{
     fun getArticle(artistName: String): ArtistBiography?

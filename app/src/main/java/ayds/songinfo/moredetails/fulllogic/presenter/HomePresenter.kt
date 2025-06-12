@@ -2,8 +2,7 @@ package ayds.songinfo.moredetails.fulllogic.presenter
 
 import ayds.observer.Observable
 import ayds.observer.Subject
-import ayds.songinfo.moredetails.fulllogic.model.HomeModel
-import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
+import ayds.songinfo.moredetails.fulllogic.domain.ArticleRepository
 
 interface HomePresenter{
     val songObservable: Observable<ArtistBiography>
@@ -11,12 +10,12 @@ interface HomePresenter{
 }
 
 internal class HomePresenterImpl(
-    private val homeModel: HomeModel) : HomePresenter{
+    private var repository: ArticleRepository) : HomePresenter{
 
     override val songObservable = Subject<ArtistBiography>()
 
     override fun getArtistInfo(artistName: String) {
-        homeModel.getArtistInfo(artistName).let {
+        repository.getArtistInfo(artistName).let {
             songObservable.notify(it)
         }
 

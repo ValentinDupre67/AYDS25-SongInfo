@@ -1,7 +1,7 @@
 package ayds.songinfo.moredetails.fulllogic.model.repository.external
 
 import ayds.songinfo.moredetails.fulllogic.model.repository.external.auth.LastFMAPI
-import ayds.songinfo.moredetails.fulllogic.view.ArtistBiography
+import ayds.songinfo.moredetails.fulllogic.presenter.ArtistBiography
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import retrofit2.Response
