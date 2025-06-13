@@ -1,26 +1,17 @@
-package ayds.songinfo.moredetails.fulllogic
+package ayds.songinfo.moredetails.fulllogic.data
 
 import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import ayds.songinfo.moredetails.fulllogic.domain.ArticleEntity
 
 @Database(entities = [ArticleEntity::class], version = 1)
 abstract class ArticleDatabase : RoomDatabase() {
     abstract fun ArticleDao(): ArticleDao
 }
-
-@Entity
-data class ArticleEntity(
-    @PrimaryKey
-    val artistName: String,
-    val biography: String,
-    val articleUrl: String,
-)
 
 @Dao
 interface ArticleDao {
